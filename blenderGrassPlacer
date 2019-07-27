@@ -1,0 +1,47 @@
+import bpy, random, bmesh
+
+range=30
+num=50000
+rayDistance=50
+
+gMinSize=.002
+gMaxSize=.03
+gMinHeight=.1
+gMaxHeight=.4
+
+obj = bpy.context.active_object
+
+mesh = bpy.data.meshes.new("mesh")  # add a new mesh
+grass = bpy.data.objects.new("Grass", mesh)  # add a new object using the mesh
+
+scene = bpy.context.scene
+scene.objects.link(grass)  # put the object into the scene (link)
+scene.objects.active = grass  # set as the active object in the scene
+grass.select = True  # select object
+
+mesh = bpy.context.object.data
+bm = bmesh.new()
+
+i=0
+while i < num:
+    hit, loc, norm, face = obj.ray_cast((obj.location[0]+random.uniform(-range/2, range/2), obj.location[1]+random.uniform(-range/2, range/2), obj.location[2]+rayDistance), (0,0,-1))
+    
+    verts = []
+    r=random.uniform(gMinSize/2, gMaxSize/2)
+    ra=random.uniform(gMinSize/2, gMaxSize/2)
+    if random.randint(0,1)==1:
+        r=-r
+    else:
+        ra=-ra
+    verts.append(bm.verts.new((loc[0]+r, loc[1]-ra, loc[2])))
+    verts.append(bm.verts.new((loc[0]-r, loc[1]+ra, loc[2])))
+    verts.append(bm.verts.new((loc[0], loc[1], loc[2]+random.uniform(gMinHeight, gMaxHeight))))
+    bm.faces.new(verts)
+    #locs.append(loc)
+    i+=1
+
+
+
+# make the bmesh the object's mesh
+bm.to_mesh(mesh)  
+bm.free()  # always do this when finished
