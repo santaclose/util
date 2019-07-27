@@ -1,0 +1,1 @@
+g++ map2png.cpp -o map2png -lsfml-graphics -lsfml-window -lsfml-system
